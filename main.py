@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-from func import kernal
+from func import kernal, max_area_idx
 cap = cv2.VideoCapture('data/obj2.mp4')
 y=240
 x1=560
@@ -32,6 +32,12 @@ while True:
     w,h = frame.shape[:2]
     frame = cv2.resize(frame, (h//2,w//2))
     mask_roi = cv2.resize(mask_roi, (h//2,w//2))
+    
+    # Find bbox countors
+    contours, hierarchy = cv2.findContours(mask_roi,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    mx_idx = max_area_idx(contours)
+    X,Y,W,H = cv2.boundingRect(contours[mx_idx])
+
     # print(mask_roi.shape)
     # break
     n = count
@@ -49,11 +55,10 @@ while True:
         print(k)
     if m>150:
         count=0
-    frame=cv2.putText(frame,f"COUNTING: {k}",org=(720,65),fontScale=1,fontFace=0,color=(0,0,255),thickness=2)
-    # print(mask_roi[300//2,"1150//5])
-
+    frame=cv2.putText(frame,f"COUNTING: {k}",org=(720,65),fontScale=1,fontFace=0,color=(0,33,255),thickness=2)
+    frame = cv2.rectangle(frame,(X,Y),(X+W,Y+H),(61,255,21),1)
+    
     cv2.imshow('frame',frame)
-    # cv2.imshow('ROI',mask_roi)
 
     if cv2.waitKey(33) == ord('q'):
         break
